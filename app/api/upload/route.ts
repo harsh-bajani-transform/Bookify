@@ -4,9 +4,8 @@ import { HandleUploadBody, handleUpload } from "@vercel/blob/client";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request): Promise<NextResponse> {
-  const body = (await request.json()) as HandleUploadBody;
-
   try {
+    const body = (await request.json()) as HandleUploadBody;
     const jsonResponse = await handleUpload({
       body,
       request,
@@ -42,6 +41,8 @@ export async function POST(request: Request): Promise<NextResponse> {
     const message =
       error instanceof Error ? error.message : "An unknown error occurred";
     const status = message.includes("Unauthorized") ? 401 : 500;
-    return NextResponse.json({ error: message }, { status });
+    console.error("Upload error", error);
+    const clientMessage = status === 401 ? "Unauthorized" : "Upload failed";
+    return NextResponse.json({ error: clientMessage }, { status });
   }
 }
